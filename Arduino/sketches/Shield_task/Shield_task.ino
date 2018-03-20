@@ -49,7 +49,7 @@ void timer1_setup(){
 void timer2_setup(){
  TCCR0A = 0x23;
  TCCR0B = 0x0C;
- OCR0A = 141;
+ OCR0A = 0x7B;
  OCR0B = 107;
  
 }
@@ -63,8 +63,8 @@ void loop() {
   if ((PINB&0x02)>>1){
     PORTB = 0x00; //turn idle LED off
     DDRD = (1<<PD5); //turn buzzer on
-    timer1_setup();
-    timer2_setup();
+    //timer1_setup();
+    //timer2_setup();
     count=0;
   }
   
@@ -73,11 +73,18 @@ void loop() {
 }
 
 ISR(TIMER1_OVF_vect) { //test mode timer overflow
-  
-  if (count==1){ //was 9
+  //OCR0A =100;
+  if (count==9){ //was 9
     PORTB = 0x01; //turn idle LED on  
     DDRD = 0; //turn buzzer off
   }
+  if ((count%2) ==0){ //James bond 141, 0xF9, 0x7B
+
+    OCR0A =0xF9;
+  }else{
+    OCR0A = 0x7B;
+  }
+  
   count++;
 }
 /*
