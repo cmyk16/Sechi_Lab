@@ -2,6 +2,9 @@ int analog_pin =3;
 int timer1_counter;
 int count =0;
 
+enum {IDLE, TEST, ALERT, ALARM} state; 
+
+
 //250khz tone
 int frequency = 250;
 //bool sqState =false;
@@ -19,12 +22,12 @@ void setup() {
   
   PORTB = 0x01; //turn idle LED on
   
-  timer1_setup(); //setup the timer for the test
-  timer2_setup(); //setup the timer for the sq wave
+  timer1_setup(); //setup the timer for the square wave
+  timer2_setup(); //setup the timer for the 10 minutes
   
   //timer 2 setup
-  pinMode(11, OUTPUT);
-  pinMode(3,OUTPUT);
+  //pinMode(11, OUTPUT);
+  //pinMode(3,OUTPUT);
   TCCR2A=0;//reset the register
   TCCR2B=0;//reset the register
   TCCR2A=0b01010011;// fast pwm mode
@@ -55,17 +58,52 @@ void timer2_setup(){
 }
 
 void loop() {
+
+  if(analogRead(analog_pin)>400){
+    Serial.println("alert");
+    state = ALERT;
+  }
   
-  //sleep_cpu();
-  //PORTB = 00000001;//(1 << PB0); //LED on
-  //Serial.println((PINB&0x02)>>1);
-  
-  if ((PINB&0x02)>>1){
-    PORTB = 0x00; //turn idle LED off
-    DDRD = (1<<PD5); //turn buzzer on
-    //timer1_setup();
-    //timer2_setup();
-    count=0;
+  switch(state){
+
+    case IDLE:
+      PORTB = 0x01; //turn idle LED on
+      DDRD = (0<<PD5); //turn buzzer off
+      
+      count=0;
+      
+      if ((PINB&0x02)>>1){
+        state = TEST;
+         }
+    break;
+
+    case TEST:
+        PORTB = 0x00; //turn idle LED off
+        DDRD = (1<<PD5); //turn buzzer on
+
+        if (count ==9){
+          state = IDLE;
+        }
+
+    break;
+
+    case ALERT:
+
+      if (count ==5){
+          state = ALARM;
+          count =0;
+        }
+      
+    break;
+
+    case ALARM:
+      PORTB = 0x00; //turn idle LED off
+      DDRD = (1<<PD5); //turn buzzer on
+
+      if (count == 30){
+        state = IDLE;
+      }
+    break;
   }
   
   Serial.println(analogRead(analog_pin));
@@ -73,11 +111,7 @@ void loop() {
 }
 
 ISR(TIMER1_OVF_vect) { //test mode timer overflow
-  //OCR0A =100;
-  if (count==9){ //was 9
-    PORTB = 0x01; //turn idle LED on  
-    DDRD = 0; //turn buzzer off
-  }
+  //oscilate between the two frequencies
   if ((count%2) ==0){ //James bond 141, 0xF9, 0x7B
 
     OCR0A =0xF9;
@@ -87,16 +121,12 @@ ISR(TIMER1_OVF_vect) { //test mode timer overflow
   
   count++;
 }
-/*
+
 ISR(TIMER2_OVF_vect) { //square wave timer overflow
 
-  Serial.println("sq");
+  Serial.println("10 mins !");
   
-  if((PORTB&0x03)>>2){
-    PORTB = (PORTB&0x03); //hi
-  }else{
-    PORTB = (PORTB&0x03); //lo
-  }
-  */
 
+  
+}
 
