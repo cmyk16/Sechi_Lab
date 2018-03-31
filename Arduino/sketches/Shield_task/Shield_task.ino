@@ -59,10 +59,7 @@ void timer2_setup(){
 
 void loop() {
 
-  if(analogRead(analog_pin)>400){
-    Serial.println("alert");
-    state = ALERT;
-  }
+  
   
   switch(state){
 
@@ -71,17 +68,23 @@ void loop() {
       DDRD = (0<<PD5); //turn buzzer off
       
       count=0;
+
+      if(analogRead(analog_pin)>400){
+    
+        state = ALERT;
+        }
       
       if ((PINB&0x02)>>1){
         state = TEST;
          }
+         
     break;
 
     case TEST:
         PORTB = 0x00; //turn idle LED off
         DDRD = (1<<PD5); //turn buzzer on
 
-        if (count ==9){
+        if (count ==11){
           state = IDLE;
         }
 
@@ -89,7 +92,12 @@ void loop() {
 
     case ALERT:
 
-      if (count ==5){
+      if(analogRead(analog_pin)<400){
+
+        state = IDLE;
+      }
+
+      if (count >=5){
           state = ALARM;
           count =0;
         }
@@ -100,7 +108,7 @@ void loop() {
       PORTB = 0x00; //turn idle LED off
       DDRD = (1<<PD5); //turn buzzer on
 
-      if (count == 30){
+      if (count == 600){ //10 min timer
         state = IDLE;
       }
     break;
