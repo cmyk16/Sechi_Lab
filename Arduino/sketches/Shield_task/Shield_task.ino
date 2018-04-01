@@ -4,13 +4,7 @@ int count =0;
 
 enum {IDLE, TEST, ALERT, ALARM} state; 
 
-
-//250khz tone
-int frequency = 250;
-//bool sqState =false;
-
 void setup() {
-  int timer1_counter;
   timer1_counter = 34286;
   
   Serial.begin(9600);
@@ -22,34 +16,12 @@ void setup() {
   
   PORTB = 0x01; //turn idle LED on
   
-  timer1_setup(); //setup the timer for the square wave
-  timer2_setup(); //setup the timer for the 10 minutes
-  
-  //timer 2 setup
-  //pinMode(11, OUTPUT);
-  //pinMode(3,OUTPUT);
-  TCCR2A=0;//reset the register
-  TCCR2B=0;//reset the register
-  TCCR2A=0b01010011;// fast pwm mode
-  TCCR2B=0b00001001;// no prescaler and WGM22 is 1
-  OCR2A=199;//control value from the formula
+  timer0_setup(); //setup the timer for the square wave
+  timer1_setup(); //setup the timer for the 10 minutes
   
 }
 
-void timer1_setup(){
-  noInterrupts(); 
-  TCCR1A = 0;
-  TCCR1B = 0;
-  //OCR0A = 1;
-  //TIMSK0 = 0x02; //sets timer 0 to generate interrupts
-  
-  TCNT1 = timer1_counter;   // preload timer
-  TCCR1B |= (1 << CS12);    // 256 prescaler 
-  TIMSK1 |= (1 << TOIE1);   // enable timer overflow interrupt
-  interrupts();  
-}
-
-void timer2_setup(){
+void timer0_setup(){
  TCCR0A = 0x23;
  TCCR0B = 0x0C;
  OCR0A = 0x7B;
@@ -57,9 +29,18 @@ void timer2_setup(){
  
 }
 
-void loop() {
-
+void timer1_setup(){
+  noInterrupts(); 
+  TCCR1A = 0;
+  TCCR1B = 0;
   
+  TCNT1 = timer1_counter;   // preload timer
+  TCCR1B |= (1 << CS12);    // 256 prescaler 
+  TIMSK1 |= (1 << TOIE1);   // enable timer overflow interrupt
+  interrupts();  
+}
+
+void loop() {
   
   switch(state){
 
@@ -128,13 +109,5 @@ ISR(TIMER1_OVF_vect) { //test mode timer overflow
   }
   
   count++;
-}
-
-ISR(TIMER2_OVF_vect) { //square wave timer overflow
-
-  Serial.println("10 mins !");
-  
-
-  
 }
 
