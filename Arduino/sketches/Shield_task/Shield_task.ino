@@ -24,8 +24,8 @@ void setup() {
 void timer0_setup(){
  TCCR0A = 0x23;
  TCCR0B = 0x0C;
- OCR0A = 0x78; //131
- OCR0B = 0x3c; //120
+ OCR0A = 0x78; //120
+ OCR0B = 0x3c; //60
  
 }
 
