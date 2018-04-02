@@ -5,7 +5,7 @@ int count =0;
 enum {IDLE, TEST, ALERT, ALARM} state; 
 
 void setup() {
-  timer1_counter = 34286;
+  timer1_counter = 3036;
   
   Serial.begin(9600);
 
@@ -35,6 +35,7 @@ void timer1_setup(){
   TCCR1B = 0;
   
   TCNT1 = timer1_counter;   // preload timer
+  //TCCR1B = 0x0C;
   TCCR1B |= (1 << CS12);    // 256 prescaler 
   TIMSK1 |= (1 << TOIE1);   // enable timer overflow interrupt
   interrupts();  
@@ -103,7 +104,7 @@ void loop() {
 }
 
 ISR(TIMER1_OVF_vect) { //test mode timer overflow
-  //oscilate between the two frequencies
+  TCNT1 = timer1_counter;
   if ((count%2) ==0){ //James bond 141, 0xF9, 0x7B
 
     OCR0A =0xF0; //240
