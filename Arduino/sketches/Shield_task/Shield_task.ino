@@ -76,6 +76,7 @@ void loop() {
       if(analogRead(analog_pin)<400){
 
         state = IDLE;
+        
       }
 
       if (count >=5){
@@ -89,8 +90,10 @@ void loop() {
       PORTB = 0x00; //turn idle LED off
       DDRD = (1<<PD5); //turn buzzer on
 
-      if (count == 600){ //10 min timer
-        state = IDLE;
+      if (count >= 600){ //10 min timer
+        if ((PINB&0x02)>>1){
+          state = IDLE;
+         }
       }
     break;
   }
