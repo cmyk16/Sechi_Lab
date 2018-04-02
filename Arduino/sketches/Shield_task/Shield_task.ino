@@ -24,8 +24,8 @@ void setup() {
 void timer0_setup(){
  TCCR0A = 0x23;
  TCCR0B = 0x0C;
- OCR0A = 0x7B;
- OCR0B = 107;
+ OCR0A = 0x78; //131
+ OCR0B = 0x3c; //120
  
 }
 
@@ -106,9 +106,11 @@ ISR(TIMER1_OVF_vect) { //test mode timer overflow
   //oscilate between the two frequencies
   if ((count%2) ==0){ //James bond 141, 0xF9, 0x7B
 
-    OCR0A =0xF9;
+    OCR0A =0xF0; //240
+    OCR0B = 0x78; //120
   }else{
-    OCR0A = 0x7B;
+    OCR0A = 0x78;
+    OCR0B = 0x3c; //120
   }
   
   count++;
